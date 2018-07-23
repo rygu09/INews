@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/bottom_tab">
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/bottom_tab_news"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:button="@null"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/main_bottom_news_selector"
+            android:gravity="center"
+            android:text="@string/news"
+            android:textSize="@dimen/textsize_8sp"/>
+
+
+        <RadioButton
+            android:id="@+id/bottom_tab_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/main_bottom_pic_selector"
+            android:gravity="center"
+            android:text="@string/photo"
+            android:textSize="@dimen/textsize_8sp"/>
+
+        <RadioButton
+            android:id="@+id/bottom_tab_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/main_bottom_video_selector"
+            android:gravity="center"
+            android:text="@string/video"
+            android:textSize="@dimen/textsize_8sp"/>
+
+        <RadioButton
+            android:id="@+id/bottom_tab_my"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/main_bottom_my_selector"
+            android:gravity="center"
+            android:text="@string/settings"
+            android:textSize="@dimen/textsize_8sp"/>
+
+    </RadioGroup>
+
+</android.support.constraint.ConstraintLayout>

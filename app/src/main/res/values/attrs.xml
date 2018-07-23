@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--新闻频道管理的背景-->
+    <attr name="itemChannelBackground" format="reference"/>
+
+    <!--CheckedTextView选中状态的颜色-->
+    <attr name="checkTextViewColorStateList" format="reference"/>
+
+    <declare-styleable name="PacManRefreshHead">
+        <attr name="pacIconColor" format="color|reference"/>
+    </declare-styleable>
+
+</resources>
