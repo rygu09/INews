@@ -62,7 +62,8 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback{
         }
 
         // 回调adapter中的onItemMove方法
-        return mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());    }
+        return mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+    }
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {

@@ -177,7 +177,64 @@ public class INewsChannelInteractorImpl implements INewsChannelInteractor<Map<Bo
                 });    }
 
     @Override
-    public Subscription channelDbSwap(RequestCallback callback, int fromPos, int toPos) {
-        return null;
+    public Subscription channelDbSwap(RequestCallback callback, final int fromPos, final int toPos) {
+        return Observable.create(new Observable.OnSubscribe<Object>() {
+            @Override
+            public void call(Subscriber<? super Object> subscriber) {
+                final NewsChannelTableDao dao = ((App) App.getContext())
+                        .getDaoSession().getNewsChannelTableDao();
+
+                // 交换前此位置对应的频道
+                final NewsChannelTable fromChannel = dao.queryBuilder()
+                        .where(NewsChannelTableDao.Properties.New_channel_index.eq(fromPos)).unique();
+
+                final int fromPosition = fromChannel.getNew_channel_index();
+
+                // 交换前此位置将要去的对应的频道
+                final NewsChannelTable toChannel = dao.queryBuilder()
+                        .where(NewsChannelTableDao.Properties.New_channel_index.eq(toPos)).unique();
+
+                final int toPosition = toChannel.getNew_channel_index();
+
+                if (Math.abs(fromPosition - toPosition) == 1) {
+                    // 相邻的交换，只需要调整两个位置即可
+                    Logger.e("相邻的交换，只需要调整两个位置即可");
+                    fromChannel.setNew_channel_index(toPosition);
+                    toChannel.setNew_channel_index(fromPosition);
+                    dao.update(fromChannel);
+                    dao.update(toChannel);
+                } else if (fromPosition - toPosition > 0) {
+                    //  开始的位置大于要去的位置,往前移
+                    Logger.e("开始的位置大于要去的位置,往前移");
+                    final List<NewsChannelTable> moveChannels = dao.queryBuilder()
+                            .where(NewsChannelTableDao.Properties.New_channel_index
+                                    .between(toPosition, fromPosition - 1)).build().list();
+                    // 全部加一
+                    for (NewsChannelTable c : moveChannels) {
+                        c.setNew_channel_index(c.getNew_channel_index() + 1);
+                        dao.update(c);
+                    }
+                    fromChannel.setNew_channel_index(toPosition);
+                    dao.update(fromChannel);
+                } else if (fromPosition - toPosition < 0) {
+                    //  开始的位置小于要去的位置,往后移
+                    Logger.e("开始的位置小于要去的位置,往后移: " + toPosition + ";" + fromPosition);
+                    final List<NewsChannelTable> moveChannels = dao.queryBuilder()
+                            .where(NewsChannelTableDao.Properties.New_channel_index
+                                    .between(fromPosition + 1, toPosition)).build().list();
+                    Logger.e(String.valueOf(moveChannels.size()));
+                    // 全部减一
+                    for (NewsChannelTable c : moveChannels) {
+                        c.setNew_channel_index(c.getNew_channel_index() - 1);
+                        dao.update(c);
+                    }
+                    fromChannel.setNew_channel_index(toPosition);
+                    dao.update(fromChannel);
+                }
+
+                subscriber.onCompleted();
+
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe();
     }
 }

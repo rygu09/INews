@@ -105,20 +105,6 @@ public class NewsListFragment extends BaseFragment implements INewsListView,Swip
         mPresenter.refreshData();
     }
 
-    @Override
-    public void updateNewsList(List<NewsBean> data, String errorMsg, int type) {
-
-            switch (type){
-                case DataLoadType.TYPE_REFRESH_SUCCESS:
-                    hideProgress();
-                    mAdapter.setData(data);
-                    break;
-                case DataLoadType.TYPE_LOAD_MORE_SUCCESS:
-                    mAdapter.addMoreData(data);
-                    break;
-            }
-    }
-
     private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
 
         private int lastVisibleItem;
@@ -142,6 +128,19 @@ public class NewsListFragment extends BaseFragment implements INewsListView,Swip
         }
     };
 
+    @Override
+    public void updateNewsList(List<NewsBean> data, String errorMsg, int type) {
+
+            switch (type){
+                case DataLoadType.TYPE_REFRESH_SUCCESS:
+                    hideProgress();
+                    mAdapter.setData(data);
+                    break;
+                case DataLoadType.TYPE_LOAD_MORE_SUCCESS:
+                    mAdapter.addMoreData(data);
+                    break;
+            }
+    }
 
     @Override
     public void showProgress() {
@@ -165,9 +164,5 @@ public class NewsListFragment extends BaseFragment implements INewsListView,Swip
             startActivity(intent);
         }
     };
-
-
-
-
 
 }
