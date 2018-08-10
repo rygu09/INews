@@ -158,8 +158,6 @@ public class Api {
         switch (id) {
             case HEADLINE_ID:
                 return HEADLINE_TYPE;
-            case HOUSE_ID:
-                return HOUSE_TYPE;
             default:
                 break;
         }
