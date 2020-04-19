@@ -71,7 +71,8 @@ public class INewsListInteractorImpl implements INewsListInteractor<List<NewsBea
                          }
                          Logger.e(e.toString());
                          callback.requestError(errorMsg);
-                     }                     Logger.e(type+"   "+id+"   "+startPage+"   "+"新闻列表请求失败:  "+e.getMessage());
+                     }
+                     Logger.e(type+"   "+id+"   "+startPage+"   "+"新闻列表请求失败:  "+e.getMessage());
                  }
 
                  @Override

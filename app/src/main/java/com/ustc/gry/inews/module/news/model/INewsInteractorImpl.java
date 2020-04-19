@@ -19,7 +19,6 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -29,6 +28,7 @@ import rx.schedulers.Schedulers;
  */
 
 public class INewsInteractorImpl implements INewsInteractor<List<NewsChannelTable>> {
+
     @Override
     public Subscription operateChannelDb(final RequestCallback<List<NewsChannelTable>> callback) {
         return Observable.create(new Observable.OnSubscribe<List<NewsChannelTable>>() {
@@ -51,7 +51,7 @@ public class INewsInteractorImpl implements INewsInteractor<List<NewsChannelTabl
                             .getStringArray(R.array.news_channel_id));
 
                     for (int i = 0; i < channelName.size(); i++) {
-                        NewsChannelTable table = new NewsChannelTable(i,channelName.get(i),
+                        NewsChannelTable table = new NewsChannelTable(i, channelName.get(i),
                                 channelId.get(i), Api.getType(channelId.get(i)), i <= 2,
                                 // 前三是固定死的，默认选中状态
                                 i, i <= 2);

@@ -47,13 +47,14 @@ public class IPictureListPresenterImpl
 
     @Override
     public void loadMoreData() {
-
+        mIsRefresh = false;
+        mSubscription = mPictureListInteractor.requestPictureList(this, mPictureId, mStartPage);
     }
 
     @Override
     public void requestSuccess(List<PictureBean> data) throws IOException {
         if (data != null) {
-            mStartPage += 1;
+            mStartPage += 2;
         }
         mView.updatePictureList(data, "", mIsRefresh ? DataLoadType.TYPE_REFRESH_SUCCESS : DataLoadType.TYPE_LOAD_MORE_SUCCESS);
         Logger.i("请求图片列表成功，让view增加pictures");

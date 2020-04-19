@@ -59,6 +59,14 @@ public class VideoListFragment extends BaseFragment implements IVideoListView, S
         }
     }
 
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        JZVideoPlayer.releaseAllVideos();
+    }
+
     public static VideoListFragment newInstance(String videoId, int position) {
         VideoListFragment fragment = new VideoListFragment();
         Bundle bundle = new Bundle();

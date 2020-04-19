@@ -131,15 +131,15 @@ public class NewsListFragment extends BaseFragment implements INewsListView,Swip
     @Override
     public void updateNewsList(List<NewsBean> data, String errorMsg, int type) {
 
-            switch (type){
-                case DataLoadType.TYPE_REFRESH_SUCCESS:
-                    hideProgress();
-                    mAdapter.setData(data);
-                    break;
-                case DataLoadType.TYPE_LOAD_MORE_SUCCESS:
-                    mAdapter.addMoreData(data);
-                    break;
-            }
+        switch (type){
+            case DataLoadType.TYPE_REFRESH_SUCCESS:
+                hideProgress();
+                mAdapter.setData(data);
+                break;
+            case DataLoadType.TYPE_LOAD_MORE_SUCCESS:
+                mAdapter.addMoreData(data);
+                break;
+        }
     }
 
     @Override

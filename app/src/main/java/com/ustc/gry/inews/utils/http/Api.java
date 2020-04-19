@@ -113,7 +113,7 @@ public class Api {
 
 
     /**
-     * 视频 http://c.3g.163.com/nc/video/list/V9LG4CHOR/n/0-10.html
+     * 视频 http://c.m.163.com/nc/video/list/V9LG4CHOR/n/0-10.html
      */
     public static final String Video = "nc/video/list/";
     public static final String VIDEO_CENTER = "/n/";

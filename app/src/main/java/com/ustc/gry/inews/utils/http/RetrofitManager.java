@@ -45,60 +45,64 @@ public class RetrofitManager {
     // 设缓存有效期为两天
     private static final long CACHE_STALE_SEC = 60 * 60 * 24 * 2;
     // 30秒内直接读缓存
-    private static final long CACHE_AGE_SEC = 0;
+    private static final long CACHE_AGE_SEC = 30;
 
     private static volatile OkHttpClient sOkHttpClient;
     // 管理不同HostType的单例
+    // SparseArray节省内存
     private static SparseArray<RetrofitManager> sInstanceManager = new SparseArray<>(HostType.TYPE_COUNT);
     // 拦截器，用来配置缓存策略
     private Interceptor mCacheInterceptor = new Interceptor() {
         @Override
         public Response intercept(Chain chain) throws IOException {
 
-            Request request = chain.request();//获取请求
-
+//            Request request = chain.request();//获取请求
+//
 //            //判断网络条件，无网缓存里面取数据，有网直接获取网络上面的数据
-//            //无网
 //            if(!NetUtil.isConnected(App.getContext())){
 //                request = request.newBuilder()
 //                        .cacheControl(CacheControl.FORCE_CACHE)
 //                        .build();
 //                Logger.d("无网络，缓存里面取数据");
 //            }
-            //有网
 //            Response originalResponse = chain.proceed(request);
-            if(NetUtil.isConnected(App.getContext())){
-                //max-age：该参数告诉浏览器将页面缓存多长时间，超过这个时间后才再次向服务器发起请求检查页面是否有更新。
-                //对于静态的页面，比如图片、CSS、Javascript，一般都不大变更，因此通常我们将存储这些内容的时间设置为较长的时间，这样浏览器会不会向浏览器反复发起请求，也不会去检查是否更新了。
-//                request = request.newBuilder()
+//
+//            if(NetUtil.isConnected(App.getContext())){
+//                //max-age：该参数告诉浏览器将页面缓存多长时间，超过这个时间后才再次向服务器发起请求检查页面是否有更新。
+//                //对于静态的页面，比如图片、CSS、Javascript，一般都不大变更，因此通常我们将存储这些内容的时间设置为较长的时间，这样浏览器会不会向浏览器反复发起请求，也不会去检查是否更新了。
+//                Logger.e("有网");
+//                return originalResponse.newBuilder()
 //                        .removeHeader("Pragma")
 //                        .removeHeader("Cache-Control")
-//                        .header("Cache-Control", "public, max-age=" + CACHE_AGE_SEC)
+//                        .header("Cache-Control", "max-age=" + CACHE_AGE_SEC)
 //                        .build();
-                Response originalResponse = chain.proceed(request);
-                Logger.e("有网");
-
-                return originalResponse.newBuilder()
-                        .removeHeader("Pragma")
-                        .removeHeader("Cache-Control")
-                        .header("Cache-Control", "max-age=" + CACHE_AGE_SEC)
-                        .build();
-            }else{//无网
-//                request = request.newBuilder()
+//
+//            }else{//无网
+//                //max-stale指示客户机可以接收超出时期间的响应消息。如果指定max-stale消息的值，那么客户机可以接收超出超时期指定值之内的响应消息
+//                //only-if-cached 请求报文专用 如果请求报文中有此标签，意味着，客户端只希望从缓存中读取资源。如果缓存中不存在，缓存会返回504 Gateway Timeout响应
+//                Logger.e("无网");
+//                return originalResponse.newBuilder()
 //                        .removeHeader("Pragma")
 //                        .removeHeader("Cache-Control")
-//                        .header("Cache-Control", "public, only-if-cached, max-stale="+CACHE_STALE_SEC)
+//                        .header("Cache-Control", "only-if-cached, max-stale="+CACHE_STALE_SEC)
 //                        .build();
+//            }
 
-                //max-stale指示客户机可以接收超出时期间的响应消息。如果指定max-stale消息的值，那么客户机可以接收超出超时期指定值之内的响应消息
-                //only-if-cached 请求报文专用 如果请求报文中有此标签，意味着，客户端只希望从缓存中读取资源。如果缓存中不存在，缓存会返回504 Gateway Timeout响应
-                Response originalResponse = chain.proceed(request);
-                Logger.e("无网");
-                return originalResponse.newBuilder()
-                        .removeHeader("Pragma")
-                        .removeHeader("Cache-Control")
-                        .header("Cache-Control", "only-if-cached, max-stale="+CACHE_STALE_SEC)
-                        .build();
+            Request request = chain.request();
+
+            // 在这里统一配置请求头缓存策略以及响应头缓存策略
+            if (NetUtil.isConnected(App.getContext())) {
+                // 在有网的情况下CACHE_AGE_SEC秒内读缓存，大于CACHE_AGE_SEC秒后会重新请求数据
+                request = request.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, max-age=" + CACHE_AGE_SEC).build();
+                Response response = chain.proceed(request);
+                return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control").header("Cache-Control", "public, max-age=" + CACHE_AGE_SEC).build();
+            } else {
+                // 无网情况下CACHE_STALE_SEC秒内读取缓存，大于CACHE_STALE_SEC秒缓存无效报504
+                request = request.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control")
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + CACHE_STALE_SEC).build();
+                Response response = chain.proceed(request);
+                return response.newBuilder().removeHeader("Pragma").removeHeader("Cache-Control")
+                        .header("Cache-Control", "public, only-if-cached, max-stale=" + CACHE_STALE_SEC).build();
             }
         }
     };
@@ -165,14 +169,15 @@ public class RetrofitManager {
 
     @NonNull
     public static RetrofitManager getInstance(int hostType) {
-        RetrofitManager instance = sInstanceManager.get(hostType);
-        if (instance == null) {
-            instance = new RetrofitManager(hostType);
-            sInstanceManager.put(hostType, instance);
-            return instance;
-        } else {
-            return instance;
-        }
+//        RetrofitManager instance = sInstanceManager.get(hostType);
+//        if (instance == null) {
+//            instance = new RetrofitManager(hostType);
+//            sInstanceManager.put(hostType, instance);
+        RetrofitManager instance=new RetrofitManager(hostType);
+        return instance;
+//        } else {
+//            return instance;
+//        }
     }
 
     // 配置OkHttpClient
@@ -196,6 +201,7 @@ public class RetrofitManager {
                 }
             }
         }
+
         return sOkHttpClient;
     }
 

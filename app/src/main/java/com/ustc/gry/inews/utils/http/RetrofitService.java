@@ -43,7 +43,7 @@ public interface RetrofitService {
 
 
     /**
-     * 美图大全响应
+     * 美图大全响应  http://apis.baidu.com/showapi_open_bus/pic/pic_search?type=4001&page=0
      * @param type "id": 4001, //此id很重要，在【图片查询】接口里将使用此id进行分类查询
     "name": "清纯"
      * @param page 页数

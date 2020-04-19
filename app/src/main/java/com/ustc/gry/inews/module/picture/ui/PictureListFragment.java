@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 
+import com.orhanobut.logger.Logger;
 import com.ustc.gry.inews.R;
 import com.ustc.gry.inews.base.BaseFragment;
 import com.ustc.gry.inews.base.BaseSpacesItemDecoration;
@@ -81,7 +82,7 @@ public class PictureListFragment extends BaseFragment implements IPictureListVie
         mAdapter = new PictureListAdapter(getContext());
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
-//        mRecyclerView.addOnScrollListener(mOnScrollListener);
+        mRecyclerView.addOnScrollListener(mOnScrollListener);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
         showProgress();
@@ -98,8 +99,38 @@ public class PictureListFragment extends BaseFragment implements IPictureListVie
 
     @Override
     public void onRefresh() {
-
+        mPresenter.refreshData();
     }
+
+    private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
+
+        private int lastVisibleItem;
+        private int[] lastPositions;
+        private int[] temp=new int[2];
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            if(lastPositions==null){
+                lastPositions = new int[mLayoutManager.getSpanCount()];
+            }
+            temp=mLayoutManager.findLastVisibleItemPositions(lastPositions);
+            lastVisibleItem = Math.max(temp[0],temp[1]);
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            if (newState == RecyclerView.SCROLL_STATE_IDLE
+                    && mLayoutManager.getChildCount() > 0 // 界面上可见的数量  > 0
+                    && lastVisibleItem >= mLayoutManager.getItemCount() - 1 // 到达了最后一个条目
+                    ) {
+                //加载更多
+                Logger.e( "loading more data");
+                mPresenter.loadMoreData();
+            }
+        }
+    };
 
     @Override
     public void updatePictureList(List<PictureBean> data, String errorMsg, int type) {
@@ -114,7 +145,7 @@ public class PictureListFragment extends BaseFragment implements IPictureListVie
         }
     }
 
-    //跳转到新闻详情
+    //跳转到大图
     private OnItemClickListener mOnItemClickListener=new OnItemClickAdapter() {
         @Override
         public void onItemClick(View view, int position) {
